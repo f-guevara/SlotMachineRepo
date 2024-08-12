@@ -7,10 +7,13 @@
             // Step 1: Ask for the starting amount of money with validation
             int money = GetStartingMoney();
 
+            // Step 2: Ask the player for the type of play (this will be kept through the entire game)
+            int playOption = GetPlayOption();
+
             while (money > 0)
             {
                 Console.Clear();
-                // Step 2: Deduct 1 euro for each spin
+                // Step 3: Deduct 1 euro for each spin
                 money -= 1;
                 Console.WriteLine($"You have {money} euros left. Spinning the slot machine...");
 
@@ -18,8 +21,8 @@
                 string[,] grid = GenerateRandomGrid();
                 DisplayGrid(grid);
 
-                // Step 3: Check if the user wins
-                if (CheckForWin(grid))
+                // Step 4: Check if the user wins
+                if (CheckForWin(grid, playOption))
                 {
                     Console.WriteLine("WIN!! :) You've earned 10 euros!");
                     money += 10;
@@ -29,7 +32,7 @@
                     Console.WriteLine("TRY AGAIN!! :{");
                 }
 
-                // Step 4: Ask if they want to continue
+                // Step 5: Ask if they want to continue
                 Console.WriteLine($"You now have {money} euros.");
                 Console.WriteLine("Press 'y' or 'Y' to play again, or any other key to quit...");
                 var key = Console.ReadKey();
@@ -104,10 +107,66 @@
             }
         }
 
-        static bool CheckForWin(string[,] grid)
+        static int GetPlayOption()
         {
-            // Simple win condition: all symbols in the first row match
-            return grid[0, 0] == grid[0, 1] && grid[0, 1] == grid[0, 2];
+            int option = 0;
+            bool validOption = false;
+
+            while (!validOption)
+            {
+                Console.WriteLine("\nChoose your play option:");
+                Console.WriteLine("1: Center Line");
+                Console.WriteLine("2: All Three Horizontal Lines");
+                Console.WriteLine("3: All Vertical Lines");
+                Console.WriteLine("4: Diagonals");
+                Console.Write("Enter your choice (1-4): ");
+
+                string input = Console.ReadLine();
+
+                if (int.TryParse(input, out option))
+                {
+                    if (option >= 1 && option <= 4)
+                    {
+                        validOption = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please select a valid option (1-4).");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a number between 1 and 4.");
+                }
+            }
+
+            return option;
+        }
+
+        static bool CheckForWin(string[,] grid, int option)
+        {
+            switch (option)
+            {
+                case 1: // Center Line
+                    return grid[1, 0] == grid[1, 1] && grid[1, 1] == grid[1, 2];
+
+                case 2: // All Three Horizontal Lines
+                    return (grid[0, 0] == grid[0, 1] && grid[0, 1] == grid[0, 2]) ||
+                           (grid[1, 0] == grid[1, 1] && grid[1, 1] == grid[1, 2]) ||
+                           (grid[2, 0] == grid[2, 1] && grid[2, 1] == grid[2, 2]);
+
+                case 3: // All Vertical Lines
+                    return (grid[0, 0] == grid[1, 0] && grid[1, 0] == grid[2, 0]) ||
+                           (grid[0, 1] == grid[1, 1] && grid[1, 1] == grid[2, 1]) ||
+                           (grid[0, 2] == grid[1, 2] && grid[1, 2] == grid[2, 2]);
+
+                case 4: // Diagonals
+                    return (grid[0, 0] == grid[1, 1] && grid[1, 1] == grid[2, 2]) ||
+                           (grid[0, 2] == grid[1, 1] && grid[1, 1] == grid[2, 0]);
+
+                default:
+                    return false;
+            }
         }
     }
 }
