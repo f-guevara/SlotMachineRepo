@@ -2,6 +2,19 @@
 {
     internal class Program
     {
+        // Constants
+        const int MIN_BET_AMOUNT = 1;
+        const int MAX_BET_AMOUNT = 100;
+        const int COST_PER_SPIN = 1;
+        const int WIN_AMOUNT = 10;
+        const string CONTINUE_PLAYING_YES_1 = "y";
+        const string CONTINUE_PLAYING_YES_2 = "Y";
+        const int PLAY_OPTION_CENTER_LINE = 1;
+        const int PLAY_OPTION_HORIZONTAL_LINES = 2;
+        const int PLAY_OPTION_VERTICAL_LINES = 3;
+        const int PLAY_OPTION_DIAGONALS = 4;
+
+
         static void Main(string[] args)
         {
             // Step 1: Ask for the starting amount of money with validation
@@ -10,11 +23,11 @@
             // Step 2: Ask the player for the type of play (this will be kept through the entire game)
             int playOption = GetPlayOption();
 
-            while (money > 0)
+            while (money >= COST_PER_SPIN)
             {
                 Console.Clear();
                 // Step 3: Deduct 1 euro for each spin
-                money -= 1;
+                money -= COST_PER_SPIN;
                 Console.WriteLine($"You have {money} euros left. Spinning the slot machine...");
 
                 // Generate and display the random grid
@@ -25,7 +38,7 @@
                 if (CheckForWin(grid, playOption))
                 {
                     Console.WriteLine("WIN!! :) You've earned 10 euros!");
-                    money += 10;
+                    money += WIN_AMOUNT;
                 }
                 else
                 {
@@ -34,9 +47,9 @@
 
                 // Step 5: Ask if they want to continue
                 Console.WriteLine($"You now have {money} euros.");
-                Console.WriteLine("Press 'y' or 'Y' to play again, or any other key to quit...");
-                var key = Console.ReadKey();
-                if (key.Key != ConsoleKey.Y && key.KeyChar != 'y')
+                Console.WriteLine("Do you want to continue playing? (y/n)");
+                string response = Console.ReadLine();
+                if (response != CONTINUE_PLAYING_YES_1 && response != CONTINUE_PLAYING_YES_2)
                 {
                     break;
                 }
@@ -60,7 +73,7 @@
 
                 if (int.TryParse(input, out money))
                 {
-                    if (money >= 1 && money <= 100)
+                    if (money >= MIN_BET_AMOUNT && money <= MAX_BET_AMOUNT)
                     {
                         validInput = true;
                     }
@@ -115,17 +128,17 @@
             while (!validOption)
             {
                 Console.WriteLine("\nChoose your play option:");
-                Console.WriteLine("1: Center Line");
-                Console.WriteLine("2: All Three Horizontal Lines");
-                Console.WriteLine("3: All Vertical Lines");
-                Console.WriteLine("4: Diagonals");
-                Console.Write("Enter your choice (1-4): ");
+                Console.WriteLine($"{PLAY_OPTION_CENTER_LINE}: Center Line");
+                Console.WriteLine($"{PLAY_OPTION_HORIZONTAL_LINES}: All Three Horizontal Lines");
+                Console.WriteLine($"{PLAY_OPTION_VERTICAL_LINES}: All Vertical Lines");
+                Console.WriteLine($"{PLAY_OPTION_DIAGONALS}: Diagonals");
+                Console.Write($"Enter your choice ({PLAY_OPTION_CENTER_LINE}-{PLAY_OPTION_DIAGONALS}): ");
 
                 string input = Console.ReadLine();
 
                 if (int.TryParse(input, out option))
                 {
-                    if (option >= 1 && option <= 4)
+                    if (option >= PLAY_OPTION_CENTER_LINE && option <= PLAY_OPTION_DIAGONALS)
                     {
                         validOption = true;
                     }
@@ -147,20 +160,20 @@
         {
             switch (option)
             {
-                case 1: // Center Line
+                case PLAY_OPTION_CENTER_LINE:
                     return grid[1, 0] == grid[1, 1] && grid[1, 1] == grid[1, 2];
 
-                case 2: // All Three Horizontal Lines
+                case PLAY_OPTION_HORIZONTAL_LINES:
                     return (grid[0, 0] == grid[0, 1] && grid[0, 1] == grid[0, 2]) ||
                            (grid[1, 0] == grid[1, 1] && grid[1, 1] == grid[1, 2]) ||
                            (grid[2, 0] == grid[2, 1] && grid[2, 1] == grid[2, 2]);
 
-                case 3: // All Vertical Lines
+                case PLAY_OPTION_VERTICAL_LINES: 
                     return (grid[0, 0] == grid[1, 0] && grid[1, 0] == grid[2, 0]) ||
                            (grid[0, 1] == grid[1, 1] && grid[1, 1] == grid[2, 1]) ||
                            (grid[0, 2] == grid[1, 2] && grid[1, 2] == grid[2, 2]);
 
-                case 4: // Diagonals
+                case PLAY_OPTION_DIAGONALS:
                     return (grid[0, 0] == grid[1, 1] && grid[1, 1] == grid[2, 2]) ||
                            (grid[0, 2] == grid[1, 1] && grid[1, 1] == grid[2, 0]);
 
