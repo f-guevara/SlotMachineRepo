@@ -3,12 +3,15 @@
     internal class Program
     {
         // Constants
+        const int GRID_SIZE = 3;
         const int MIN_BET_AMOUNT = 1;
         const int MAX_BET_AMOUNT = 100;
         const int COST_PER_SPIN = 1;
         const int WIN_AMOUNT = 10;
         const string CONTINUE_PLAYING_YES_1 = "y";
         const string CONTINUE_PLAYING_YES_2 = "Y";
+        const int RANDOM_MIN_VALUE = 0;
+        const int RANDOM_MAX_VALUE = 6;
         const int PLAY_OPTION_CENTER_LINE = 1;
         const int PLAY_OPTION_HORIZONTAL_LINES = 2;
         const int PLAY_OPTION_VERTICAL_LINES = 3;
@@ -31,13 +34,13 @@
                 Console.WriteLine($"You have {money} euros left. Spinning the slot machine...");
 
                 // Generate and display the random grid
-                string[,] grid = GenerateRandomGrid();
+                int[,] grid = GenerateRandomGrid();
                 DisplayGrid(grid);
 
                 // Step 4: Check if the user wins
                 if (CheckForWin(grid, playOption))
                 {
-                    Console.WriteLine("WIN!! :) You've earned 10 euros!");
+                    Console.WriteLine($"WIN!! :) You've earned {WIN_AMOUNT} euros!");
                     money += WIN_AMOUNT;
                 }
                 else
@@ -68,7 +71,7 @@
 
             while (!validInput)
             {
-                Console.Write("Enter the amount of money you want to start with (1 to 100 euros): ");
+                Console.Write($"Enter the amount of money you want to start with ({MIN_BET_AMOUNT} to {MAX_BET_AMOUNT} euros): ");
                 string input = Console.ReadLine();
 
                 if (int.TryParse(input, out money))
@@ -79,7 +82,7 @@
                     }
                     else
                     {
-                        Console.WriteLine("Please enter an amount between 1 and 100 euros.");
+                        Console.WriteLine($"Please enter an amount between {MIN_BET_AMOUNT} and {MAX_BET_AMOUNT} euros.");
                     }
                 }
                 else
@@ -91,28 +94,27 @@
             return money;
         }
 
-        static string[,] GenerateRandomGrid()
+        static int[,] GenerateRandomGrid()
         {
-            string[,] grid = new string[3, 3];
+            int[,] grid = new int[GRID_SIZE, GRID_SIZE];
             Random random = new Random();
-            string[] symbols = { "0", "1", "2", "3", "4", "5" };
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < GRID_SIZE; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < GRID_SIZE; j++)
                 {
-                    grid[i, j] = symbols[random.Next(symbols.Length)];
+                    grid[i, j] = random.Next(RANDOM_MIN_VALUE, RANDOM_MAX_VALUE);
                 }
             }
 
             return grid;
         }
 
-        static void DisplayGrid(string[,] grid)
+        static void DisplayGrid(int[,] grid)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < GRID_SIZE; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int j = 0; j < GRID_SIZE; j++)
                 {
                     Console.Write(grid[i, j] + " ");
                 }
@@ -144,42 +146,96 @@
                     }
                     else
                     {
-                        Console.WriteLine("Please select a valid option (1-4).");
+                        Console.WriteLine($"Please select a valid option ({PLAY_OPTION_CENTER_LINE}-{PLAY_OPTION_DIAGONALS}).");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input. Please enter a number between 1 and 4.");
+                    Console.WriteLine($"Invalid input. Please enter a number between {PLAY_OPTION_CENTER_LINE} and {PLAY_OPTION_DIAGONALS}.");
                 }
             }
 
             return option;
         }
 
-        static bool CheckForWin(string[,] grid, int option)
+        static bool CheckForWin(int[,] grid, int option)
         {
             switch (option)
             {
                 case PLAY_OPTION_CENTER_LINE:
-                    return grid[1, 0] == grid[1, 1] && grid[1, 1] == grid[1, 2];
+                    return CheckHorizontalLine(grid, GRID_SIZE / 2);
 
                 case PLAY_OPTION_HORIZONTAL_LINES:
-                    return (grid[0, 0] == grid[0, 1] && grid[0, 1] == grid[0, 2]) ||
-                           (grid[1, 0] == grid[1, 1] && grid[1, 1] == grid[1, 2]) ||
-                           (grid[2, 0] == grid[2, 1] && grid[2, 1] == grid[2, 2]);
+                    for (int i = 0; i < GRID_SIZE; i++)
+                    {
+                        if (CheckHorizontalLine(grid, i))
+                            return true;
+                    }
+                    return false;
 
-                case PLAY_OPTION_VERTICAL_LINES: 
-                    return (grid[0, 0] == grid[1, 0] && grid[1, 0] == grid[2, 0]) ||
-                           (grid[0, 1] == grid[1, 1] && grid[1, 1] == grid[2, 1]) ||
-                           (grid[0, 2] == grid[1, 2] && grid[1, 2] == grid[2, 2]);
+                case PLAY_OPTION_VERTICAL_LINES:
+                    for (int i = 0; i < GRID_SIZE; i++)
+                    {
+                        if (CheckVerticalLine(grid, i))
+                            return true;
+                    }
+                    return false;
 
                 case PLAY_OPTION_DIAGONALS:
-                    return (grid[0, 0] == grid[1, 1] && grid[1, 1] == grid[2, 2]) ||
-                           (grid[0, 2] == grid[1, 1] && grid[1, 1] == grid[2, 0]);
+                    return CheckMainDiagonal(grid) || CheckAntiDiagonal(grid);
 
                 default:
                     return false;
             }
         }
+
+        static bool CheckHorizontalLine(int[,] grid, int row)
+        {
+            for (int col = 1; col < GRID_SIZE; col++)
+            {
+                if (grid[row, col] != grid[row, col - 1])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        static bool CheckVerticalLine(int[,] grid, int col)
+        {
+            for (int row = 1; row < GRID_SIZE; row++)
+            {
+                if (grid[row, col] != grid[row - 1, col])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        static bool CheckMainDiagonal(int[,] grid)
+        {
+            for (int i = 1; i < GRID_SIZE; i++)
+            {
+                if (grid[i, i] != grid[i - 1, i - 1])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        static bool CheckAntiDiagonal(int[,] grid)
+        {
+            for (int i = 1; i < GRID_SIZE; i++)
+            {
+                if (grid[i, GRID_SIZE - i - 1] != grid[i - 1, GRID_SIZE - i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
     }
 }
