@@ -8,8 +8,6 @@
         const int MAX_BET_AMOUNT = 100;
         const int COST_PER_SPIN = 1;
         const int WIN_AMOUNT = 10;
-        const string CONTINUE_PLAYING_YES_1 = "y";
-        const string CONTINUE_PLAYING_YES_2 = "Y";
         const int RANDOM_MIN_VALUE = 0;
         const int RANDOM_MAX_VALUE = 6;
         const int PLAY_OPTION_CENTER_LINE = 1;
@@ -23,42 +21,47 @@
             // Step 1: Ask for the starting amount of money with validation
             int money = GetStartingMoney();
 
-            // Step 2: Ask the player for the type of play (this will be kept through the entire game)
-            int playOption = GetPlayOption();
-
             while (money >= COST_PER_SPIN)
             {
-                Console.Clear();
-                // Step 3: Deduct 1 euro for each spin
-                money -= COST_PER_SPIN;
-                Console.WriteLine($"You have {money} euros left. Spinning the slot machine...");
+                // Step 2: Ask the player for the type of play (this can now be changed during the game)
+                int playOption = GetPlayOption();
 
-                // Generate and display the random grid
-                int[,] grid = GenerateRandomGrid();
-                DisplayGrid(grid);
+                while (money >= COST_PER_SPIN)
+                {
+                    Console.Clear();
+                    // Deduct 1 euro for each spin
+                    money -= COST_PER_SPIN;
+                    Console.WriteLine($"You have {money} euros left. Spinning the slot machine...");
 
-                // Step 4: Check if the user wins
-                if (CheckForWin(grid, playOption))
-                {
-                    Console.WriteLine($"WIN!! :) You've earned {WIN_AMOUNT} euros!");
-                    money += WIN_AMOUNT;
-                }
-                else
-                {
-                    Console.WriteLine("TRY AGAIN!! :{");
-                }
+                    // Generate and display the random grid
+                    int[,] grid = GenerateRandomGrid();
+                    DisplayGrid(grid);
 
-                // Step 5: Ask if they want to continue
-                Console.WriteLine($"You now have {money} euros.");
-                Console.WriteLine("Do you want to continue playing? (y/n)");
-                string response = Console.ReadLine();
-                if (response != CONTINUE_PLAYING_YES_1 && response != CONTINUE_PLAYING_YES_2)
-                {
-                    break;
+                    // Check if the user wins
+                    if (CheckForWin(grid, playOption))
+                    {
+                        Console.WriteLine($"WIN!! :) You've earned {WIN_AMOUNT} euros!");
+                        money += WIN_AMOUNT;
+                    }
+                    else
+                    {
+                        Console.WriteLine("TRY AGAIN!! :{");
+                    }
+
+                    // Ask if they want to continue or change the type of game
+                    Console.WriteLine($"You now have {money} euros.");
+                    Console.WriteLine("Press 'Esc' to change the type of game, or any other key to continue playing.");
+
+                    // Check for 'Esc' key
+                    var keyInfo = Console.ReadKey();
+                    if (keyInfo.Key == ConsoleKey.Escape)
+                    {
+                        break;  // Breaks the inner loop, allowing the player to choose a new game type
+                    }
                 }
             }
 
-            // If they run out of money or quit
+            // If the player runs out of money
             Console.WriteLine("\nGame Over. Thanks for playing!");
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
